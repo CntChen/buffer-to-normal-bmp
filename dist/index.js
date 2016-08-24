@@ -78,6 +78,48 @@ var BufferToNormalBmp = function () {
 
             return bmpHeaderBuffer;
         }
+
+        /**
+         * 协定传入的行数据是从上到下的，而BMP存储是从下到上的，所以需要转换一下
+         */
+
+    }, {
+        key: '_reverseBufferLine',
+        value: function _reverseBufferLine(rgbaBuffer, width, height) {
+            var bufferArr = [];
+            for (var i = 0; i < height; i++) {
+                var oneLineBuffer = rgbaBuffer.slice(4 * width * i, 4 * width * (i + 1));
+                oneLineBuffer = this._rgbaToBgra(oneLineBuffer, width);
+                bufferArr.push(oneLineBuffer);
+            }
+            bufferArr = bufferArr.reverse();
+
+            return Buffer.concat(bufferArr);
+        }
+    }, {
+        key: '_rgbaToBgra',
+        value: function _rgbaToBgra(rgbaBuffer, width) {
+            var rs = [];
+            var gs = [];
+            var bs = [];
+            var as = [];
+            for (var i = 0; i < width; i++) {
+                rs.push(rgbaBuffer.slice(4 * i + 0, 4 * i + 1));
+                gs.push(rgbaBuffer.slice(4 * i + 1, 4 * i + 2));
+                bs.push(rgbaBuffer.slice(4 * i + 2, 4 * i + 3));
+                as.push(rgbaBuffer.slice(4 * i + 3, 4 * i + 4));
+            }
+
+            var bufferArr = [];
+            for (var _i = 0; _i < width; _i++) {
+                bufferArr.push(as[_i]);
+                bufferArr.push(rs[_i]);
+                bufferArr.push(gs[_i]);
+                bufferArr.push(bs[_i]);
+            }
+
+            return Buffer.concat(bufferArr);
+        }
     }, {
         key: 'to32bitBmpBuffer',
         value: function to32bitBmpBuffer() {
@@ -122,7 +164,8 @@ var BufferToNormalBmp = function () {
             };
 
             var bmpHeaderBuffer = this._setBmpHeader(bmpHeaderParams);
-            var bmpBuffer = Buffer.concat([bmpHeaderBuffer, this.rgbaBuffer]);
+            var bmpPixelBuffer = this._reverseBufferLine(this.rgbaBuffer, this.width, this.height);
+            var bmpBuffer = Buffer.concat([bmpHeaderBuffer, bmpPixelBuffer]);
 
             return bmpBuffer;
         }
@@ -143,7 +186,7 @@ var BufferToNormalBmp = function () {
             var height = this.height;
             var planes = 1;
             var bitPP = 24;
-            var compress = 0;
+            var compress = 3;
             var rawSize = bmpPixelSize;
             // http://www.bing.com/search?q=bmp++3780
             var hr = 3780;
