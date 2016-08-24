@@ -12,6 +12,10 @@ module.exports = {
   output: {
     path: 'dist/',
     filename: 'index.js',
+    target: 'node',
+    node: {
+      Buffer: false
+    },
     libraryTarget: 'commonjs2',
     library: 'BufferToNormalBmp',
   },

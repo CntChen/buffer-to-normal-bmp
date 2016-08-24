@@ -16,5 +16,5 @@ var bmpPixelBuffer = bmpData.data;
 var myBufferToNormalBmp = new BufferToNormalBmp(bmpPixelBuffer, 60, 20);
 var bmpHeaderBuffer = myBufferToNormalBmp.to32bitBmpBuffer();
 
-fs.writeFileSync(__dirname + '/mybmpHeaderBuffer.binary', bmpHeaderBuffer);
+fs.writeFileSync(__dirname + '/mybmpHeaderBuffer.bmp', bmpHeaderBuffer);
 console.log(bmpHeaderBuffer);

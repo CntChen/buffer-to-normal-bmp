@@ -17,6 +17,43 @@ RT。
 
 ## 语法
 
+## 坑
+使用webpack打包为node模块后，引入了Buffer for Broswer
+* 使用webpack打包，其中js文件使用了babel-loader，然后引入了Buffer for Broswer，问题是我这个模块是一个node模块啊，我没必要引入`Buffer`
+```
+    target: 'node',
+    node: {
+      Buffer: false
+    },
+    libraryTarget: 'commonjs2',
+    library: 'BufferToNormalBmp',
+```
+该`webpack.config.js`配置并没有什么鸟用。
+
+* 并且`Buffer.concat`报错，我不能忍
+```
+TypeError: "list" argument must be an Array of Buffers
+```
+
+* 这个问题要么是webpack没设置好打包平台引起的，也可能可以使用排除的语法来处理
+
+* 可能是`babel-loader`引起的，自己去shim了js-core
+
+* 使用
+```
+babel src/idnex.js -o dist/index.js
+```
+转译后的代码没有问题
+
+* 在`package.json`中添加`script`，发布模块时候可以自动运行
+>The prepublish script is automatically run whenever you type npm publish.
+```
+    "compile": "babel -d lib/ src/",
+    "prepublish": "npm run compile"
+```
+>http://mammal.io/articles/using-es6-today/
+
+* 如果不发布呢，直接clone，那用`gulp`或手工，随便啊
 
 ## 参考资料
 >https://github.com/shaozilee/bmp-js
