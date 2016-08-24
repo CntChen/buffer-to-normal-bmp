@@ -1,0 +1,23 @@
+{
+  "name": "buffer-to-normal-bmp",
+  "version": "1.0.0",
+  "description": "将RAGB的buffer数据转换为BMP文件",
+  "main": "index.js",
+  "scripts": {
+    "test": "test/test.js"
+  },
+  "author": "CntChen",
+  "license": "MIT",
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  },
+  "devDependencies": {
+    "babel-core": "^6.13.2",
+    "babel-loader": "^6.2.5",
+    "babel-preset-es2015": "^6.13.2",
+    "clean-webpack-plugin": "^0.1.10",
+    "webpack": "^1.13.2"
+  }
+}
