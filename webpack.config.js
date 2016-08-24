@@ -12,7 +12,7 @@ module.exports = {
   output: {
     path: 'dist/',
     filename: 'index.js',
-    libraryTarget: "umd",
+    libraryTarget: 'commonjs2',
     library: 'BufferToNormalBmp',
   },
   plugins: plugins,
