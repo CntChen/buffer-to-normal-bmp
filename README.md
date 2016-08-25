@@ -48,7 +48,7 @@ babel src/idnex.js -o dist/index.js
 * 在`package.json`中添加`script`，发布模块时候可以自动运行
 >The prepublish script is automatically run whenever you type npm publish.
 ```
-    "compile": "babel -d lib/ src/",
+    "compile": "babel src/ -d dist/",
     "prepublish": "npm run compile"
 ```
 >http://mammal.io/articles/using-es6-today/

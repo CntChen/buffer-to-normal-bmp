@@ -71,10 +71,11 @@ class BufferToNormalBmp {
      * 协定传入的行数据是从上到下的，而BMP存储是从下到上的，所以需要转换一下
      */
     _reverseBufferLine(rgbaBuffer, width, height) {
+        rgbaBuffer = Buffer.from(rgbaBuffer);
+
         let bufferArr = [];
         for (let i = 0; i < height; i++) {
             let oneLineBuffer = rgbaBuffer.slice(4 * width * i, 4 * width * (i + 1));
-            oneLineBuffer = this._rgbaToBgra(oneLineBuffer, width);
             bufferArr.push(oneLineBuffer);
         }
         bufferArr = bufferArr.reverse();
@@ -82,7 +83,9 @@ class BufferToNormalBmp {
         return Buffer.concat(bufferArr);
     }
 
-    _rgbaToBgra(rgbaBuffer, width) {
+    _getRgbaArr(pixelBuffer, pixelWidth, colorBitUnit) {
+        pixelBuffer = Buffer.from(pixelBuffer);
+
         let rs = [];
         let gs = [];
         let bs = [];
@@ -96,16 +99,26 @@ class BufferToNormalBmp {
 
         let bufferArr = [];
         for (let i = 0; i < width; i++) {
-            bufferArr.push(as[i]);
             bufferArr.push(rs[i]);
             bufferArr.push(gs[i]);
             bufferArr.push(bs[i]);
+            bufferArr.push(as[i]);            
         }
 
         return Buffer.concat(bufferArr);
     }
 
-    to32bitBmpBuffer() {
+    to32bitBmpBuffer(rgbaBuffer, pixelWidth, pixelHeight) {
+        rgbaBuffer = rgbaBuffer || this.rgbaBuffer;
+        pixelWidth = pixelWidth || this.width;
+        pixelHeight =  pixelHeight || this.height;
+
+        if(rgbaBuffer.length != 4 * pixelWidth * pixelHeight){
+            throw new Error('Not correct bmp params');
+        }
+
+        rgbaBuffer = Buffer.from(rgbaBuffer);
+
         const bmpHeaderSize = 54;
         const bmpPixelSize = 4 * this.width * this.height;
         const bmpBufferSize = bmpHeaderSize + bmpPixelSize;
@@ -116,10 +129,10 @@ class BufferToNormalBmp {
         const offset = bmpHeaderSize;
         // DIB header: BITMAPINFOHEADER
         const headerSize = 40;
-        const width = this.width;
-        const height = this.height;
+        const width = pixelWidth;
+        const height = pixelHeight;
         const planes = 1;
-        const bitPP = 24;
+        const bitPP = 32;
         const compress = 0;
         const rawSize = bmpPixelSize;
         // http://www.bing.com/search?q=bmp++3780
@@ -147,13 +160,23 @@ class BufferToNormalBmp {
         };
 
         const bmpHeaderBuffer = this._setBmpHeader(bmpHeaderParams);
-        const bmpPixelBuffer = this._reverseBufferLine(this.rgbaBuffer, this.width, this.height);
+        const bmpPixelBuffer = this._reverseBufferLine(rgbaBuffer, width, height);
         const bmpBuffer = Buffer.concat([bmpHeaderBuffer, bmpPixelBuffer]);
 
         return bmpBuffer;
     };
 
-    to24bitBmpBuffer() {
+    to24bitBmpBuffer(rgbaBuffer, pixelWidth, pixelHeight) {
+        rgbaBuffer = rgbaBuffer || this.rgbaBuffer;
+        pixelWidth = pixelWidth || this.width;
+        pixelHeight =  pixelHeight || this.height;
+
+        if(rgbaBuffer.length != 4 * pixelWidth * pixelHeight){
+            throw new Error('Not correct bmp params');
+        }
+
+        rgbaBuffer = Buffer.from(rgbaBuffer);
+
         const bmpHeaderSize = 54;
         const bmpPixelSize = 3 * this.width * this.height;
         const bmpBufferSize = bmpHeaderSize + bmpPixelSize;
@@ -195,13 +218,20 @@ class BufferToNormalBmp {
         };
 
         const bmpHeaderBuffer = this._setBmpHeader(bmpHeaderParams);
-
-
-
+        
         return bmpHeaderBuffer;
     };
 
-    to16bitBmpBuffer() {
+    to16bitBmpBuffer(rgbaBuffer, pixelWidth, pixelHeight) {
+        rgbaBuffer = rgbaBuffer || this.rgbaBuffer;
+        pixelWidth = pixelWidth || this.width;
+        pixelHeight =  pixelHeight || this.height;
+
+        if(rgbaBuffer.length != 4 * pixelWidth * pixelHeight){
+            throw new Error('Not correct bmp params');
+        }
+
+        rgbaBuffer = Buffer.from(rgbaBuffer);
         const bmpHeaderSize = 54;
         const bmpPixelSize = 2 * this.width * this.height;
         const bmpBufferSize = bmpHeaderSize + bmpPixelSize;
@@ -215,7 +245,7 @@ class BufferToNormalBmp {
         const width = this.width;
         const height = this.height;
         const planes = 1;
-        const bitPP = 24;
+        const bitPP = 16;
         const compress = 0;
         const rawSize = bmpPixelSize;
         // http://www.bing.com/search?q=bmp++3780
@@ -247,6 +277,7 @@ class BufferToNormalBmp {
         return bmpHeaderBuffer;
     };
 };
+
 
 export {
     BufferToNormalBmp

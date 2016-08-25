@@ -41,6 +41,7 @@ var BufferToNormalBmp = function () {
             var colors = bmpHeaderParams.colors;
             var importantColors = bmpHeaderParams.importantColors;
 
+
             var bmpHeaderSize = 54;
             var bmpHeaderBuffer = new Buffer(bmpHeaderSize);
 
@@ -86,10 +87,11 @@ var BufferToNormalBmp = function () {
     }, {
         key: '_reverseBufferLine',
         value: function _reverseBufferLine(rgbaBuffer, width, height) {
+            rgbaBuffer = Buffer.from(rgbaBuffer);
+
             var bufferArr = [];
             for (var i = 0; i < height; i++) {
                 var oneLineBuffer = rgbaBuffer.slice(4 * width * i, 4 * width * (i + 1));
-                oneLineBuffer = this._rgbaToBgra(oneLineBuffer, width);
                 bufferArr.push(oneLineBuffer);
             }
             bufferArr = bufferArr.reverse();
@@ -97,8 +99,10 @@ var BufferToNormalBmp = function () {
             return Buffer.concat(bufferArr);
         }
     }, {
-        key: '_rgbaToBgra',
-        value: function _rgbaToBgra(rgbaBuffer, width) {
+        key: '_getRgbaArr',
+        value: function _getRgbaArr(pixelBuffer, pixelWidth, colorBitUnit) {
+            pixelBuffer = Buffer.from(pixelBuffer);
+
             var rs = [];
             var gs = [];
             var bs = [];
@@ -112,17 +116,27 @@ var BufferToNormalBmp = function () {
 
             var bufferArr = [];
             for (var _i = 0; _i < width; _i++) {
-                bufferArr.push(as[_i]);
                 bufferArr.push(rs[_i]);
                 bufferArr.push(gs[_i]);
                 bufferArr.push(bs[_i]);
+                bufferArr.push(as[_i]);
             }
 
             return Buffer.concat(bufferArr);
         }
     }, {
         key: 'to32bitBmpBuffer',
-        value: function to32bitBmpBuffer() {
+        value: function to32bitBmpBuffer(rgbaBuffer, pixelWidth, pixelHeight) {
+            rgbaBuffer = rgbaBuffer || this.rgbaBuffer;
+            pixelWidth = pixelWidth || this.width;
+            pixelHeight = pixelHeight || this.height;
+
+            if (rgbaBuffer.length != 4 * pixelWidth * pixelHeight) {
+                throw new Error('Not correct bmp params');
+            }
+
+            rgbaBuffer = Buffer.from(rgbaBuffer);
+
             var bmpHeaderSize = 54;
             var bmpPixelSize = 4 * this.width * this.height;
             var bmpBufferSize = bmpHeaderSize + bmpPixelSize;
@@ -133,10 +147,10 @@ var BufferToNormalBmp = function () {
             var offset = bmpHeaderSize;
             // DIB header: BITMAPINFOHEADER
             var headerSize = 40;
-            var width = this.width;
-            var height = this.height;
+            var width = pixelWidth;
+            var height = pixelHeight;
             var planes = 1;
-            var bitPP = 24;
+            var bitPP = 32;
             var compress = 0;
             var rawSize = bmpPixelSize;
             // http://www.bing.com/search?q=bmp++3780
@@ -164,14 +178,24 @@ var BufferToNormalBmp = function () {
             };
 
             var bmpHeaderBuffer = this._setBmpHeader(bmpHeaderParams);
-            var bmpPixelBuffer = this._reverseBufferLine(this.rgbaBuffer, this.width, this.height);
+            var bmpPixelBuffer = this._reverseBufferLine(rgbaBuffer, width, height);
             var bmpBuffer = Buffer.concat([bmpHeaderBuffer, bmpPixelBuffer]);
 
             return bmpBuffer;
         }
     }, {
         key: 'to24bitBmpBuffer',
-        value: function to24bitBmpBuffer() {
+        value: function to24bitBmpBuffer(rgbaBuffer, pixelWidth, pixelHeight) {
+            rgbaBuffer = rgbaBuffer || this.rgbaBuffer;
+            pixelWidth = pixelWidth || this.width;
+            pixelHeight = pixelHeight || this.height;
+
+            if (rgbaBuffer.length != 4 * pixelWidth * pixelHeight) {
+                throw new Error('Not correct bmp params');
+            }
+
+            rgbaBuffer = Buffer.from(rgbaBuffer);
+
             var bmpHeaderSize = 54;
             var bmpPixelSize = 3 * this.width * this.height;
             var bmpBufferSize = bmpHeaderSize + bmpPixelSize;
@@ -218,7 +242,16 @@ var BufferToNormalBmp = function () {
         }
     }, {
         key: 'to16bitBmpBuffer',
-        value: function to16bitBmpBuffer() {
+        value: function to16bitBmpBuffer(rgbaBuffer, pixelWidth, pixelHeight) {
+            rgbaBuffer = rgbaBuffer || this.rgbaBuffer;
+            pixelWidth = pixelWidth || this.width;
+            pixelHeight = pixelHeight || this.height;
+
+            if (rgbaBuffer.length != 4 * pixelWidth * pixelHeight) {
+                throw new Error('Not correct bmp params');
+            }
+
+            rgbaBuffer = Buffer.from(rgbaBuffer);
             var bmpHeaderSize = 54;
             var bmpPixelSize = 2 * this.width * this.height;
             var bmpBufferSize = bmpHeaderSize + bmpPixelSize;
@@ -232,7 +265,7 @@ var BufferToNormalBmp = function () {
             var width = this.width;
             var height = this.height;
             var planes = 1;
-            var bitPP = 24;
+            var bitPP = 16;
             var compress = 0;
             var rawSize = bmpPixelSize;
             // http://www.bing.com/search?q=bmp++3780
