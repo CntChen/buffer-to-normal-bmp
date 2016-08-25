@@ -303,15 +303,11 @@ function from16To24(rgbaBuffer) {
 }
 
 
-const RgabBufferBitTransform = {
+export {
     from32To24,
     from32To16,
     from24To32,
     from16To32,
     from24To16,
     from16To24,
-};
-
-export {
-    RgabBufferBitTransform
 };

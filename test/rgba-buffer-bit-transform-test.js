@@ -2,7 +2,7 @@
  * @date    2016.08.25
  */
 
-var RgabBufferBitTransform = require('../dist/rgba-buffer-bit-transform.js').RgabBufferBitTransform;
+var RgabBufferBitTransform = require('../dist/rgba-buffer-bit-transform.js');
 
 function test() {
   ////

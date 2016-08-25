@@ -4,7 +4,7 @@
  */
 
 
-import {RgabBufferBitTransform} from './rgba-buffer-bit-transform.js';
+import * as RgabBufferBitTransform from './rgba-buffer-bit-transform.js';
 console.log(RgabBufferBitTransform);
 
 class BufferToNormalBmp {
@@ -283,6 +283,4 @@ class BufferToNormalBmp {
 };
 
 
-export {
-    BufferToNormalBmp
-};
+export default BufferToNormalBmp;

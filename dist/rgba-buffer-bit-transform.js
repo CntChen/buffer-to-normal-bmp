@@ -342,13 +342,9 @@ function from16To24(rgbaBuffer) {
     return rgbaBuffer;
 }
 
-var RgabBufferBitTransform = {
-    from32To24: from32To24,
-    from32To16: from32To16,
-    from24To32: from24To32,
-    from16To32: from16To32,
-    from24To16: from24To16,
-    from16To24: from16To24
-};
-
-exports.RgabBufferBitTransform = RgabBufferBitTransform;
+exports.from32To24 = from32To24;
+exports.from32To16 = from32To16;
+exports.from24To32 = from24To32;
+exports.from16To32 = from16To32;
+exports.from24To16 = from24To16;
+exports.from16To24 = from16To24;
