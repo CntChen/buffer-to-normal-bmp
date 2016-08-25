@@ -3,15 +3,18 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.BufferToNormalBmp = undefined;
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by CntChen 2016.08.24
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * 将RAGB的buffer数据转换为BMP文件
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+var _rgbaBufferBitTransform = require('./rgba-buffer-bit-transform.js');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-/**
- * Created by CntChen 2016.08.24
- * 将RAGB的buffer数据转换为BMP文件
- */
+console.log(_rgbaBufferBitTransform.RgabBufferBitTransform);
 
 var BufferToNormalBmp = function () {
     function BufferToNormalBmp(rgbaBuffer, width, height) {
@@ -40,7 +43,6 @@ var BufferToNormalBmp = function () {
             var vr = bmpHeaderParams.vr;
             var colors = bmpHeaderParams.colors;
             var importantColors = bmpHeaderParams.importantColors;
-
 
             var bmpHeaderSize = 54;
             var bmpHeaderBuffer = new Buffer(bmpHeaderSize);

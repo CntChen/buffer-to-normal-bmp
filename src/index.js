@@ -3,6 +3,10 @@
  * 将RAGB的buffer数据转换为BMP文件
  */
 
+
+import {RgabBufferBitTransform} from './rgba-buffer-bit-transform.js';
+console.log(RgabBufferBitTransform);
+
 class BufferToNormalBmp {
     constructor(rgbaBuffer, width, height) {
         this.rgbaBuffer = rgbaBuffer;
