@@ -17,9 +17,15 @@ var bmpData = bmp.decode(bmpBuffer);
 var bmpPixelBuffer = bmpData.data;
 
 var myBufferToNormalBmp = new BufferToNormalBmp(bmpPixelBuffer, 60, 20);
-var bmpHeaderBuffer = myBufferToNormalBmp.to32bitBmpBuffer();
-
-fs.writeFileSync(__dirname + '/mybmpHeaderBuffer.bmp', bmpHeaderBuffer);
+// 32
+var bmp32Buffer = myBufferToNormalBmp.to32bitBmpBuffer();
+fs.writeFileSync(__dirname + '/bmp32.bmp', bmp32Buffer);
+// 24
+var bmp24Buffer = myBufferToNormalBmp.to24bitBmpBuffer();
+fs.writeFileSync(__dirname + '/bmp24.bmp', bmp24Buffer);
+// 16
+var bmp16Buffer = myBufferToNormalBmp.to16bitBmpBuffer();
+fs.writeFileSync(__dirname + '/bmp16.bmp', bmp16Buffer);
 
 
 ////

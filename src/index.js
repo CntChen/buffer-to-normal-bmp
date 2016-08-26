@@ -5,11 +5,12 @@
 
 
 import * as RgabBufferBitTransform from './rgba-buffer-bit-transform.js';
-console.log(RgabBufferBitTransform);
 
 class BufferToNormalBmp {
     constructor(rgbaBuffer, width, height) {
-        this.rgbaBuffer = rgbaBuffer;
+        const inputPixelBit = Number.parseInt(rgbaBuffer.length / width / height * 8);
+        this.rgbaBuffer = (RgabBufferBitTransform['from'+inputPixelBit+'To32'] && RgabBufferBitTransform['from'+inputPixelBit+'To32'](rgbaBuffer))
+        || Buffer.from(rgbaBuffer);
         this.width = width;
         this.height = height;
     }
@@ -222,8 +223,12 @@ class BufferToNormalBmp {
         };
 
         const bmpHeaderBuffer = this._setBmpHeader(bmpHeaderParams);
-        
-        return bmpHeaderBuffer;
+        const rgbaBuffer24 = RgabBufferBitTransform.from32To24(rgbaBuffer);
+        const bmpPixelBuffer = this._reverseBufferLine(rgbaBuffer24, width, height);
+        console.log(bmpPixelBuffer.length);
+        const bmpBuffer = Buffer.concat([bmpHeaderBuffer, bmpPixelBuffer]);
+
+        return bmpBuffer;
     };
 
     to16bitBmpBuffer(rgbaBuffer, pixelWidth, pixelHeight) {
@@ -277,8 +282,11 @@ class BufferToNormalBmp {
         };
 
         const bmpHeaderBuffer = this._setBmpHeader(bmpHeaderParams);
+        const rgbaBuffer16 = RgabBufferBitTransform.from32To16(rgbaBuffer);
+        const bmpPixelBuffer = this._reverseBufferLine(rgbaBuffer16, width, height);
+        const bmpBuffer = Buffer.concat([bmpHeaderBuffer, bmpPixelBuffer]);
 
-        return bmpHeaderBuffer;
+        return bmpBuffer;
     };
 };
 

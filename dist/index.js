@@ -17,13 +17,12 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-console.log(RgabBufferBitTransform);
-
 var BufferToNormalBmp = function () {
     function BufferToNormalBmp(rgbaBuffer, width, height) {
         _classCallCheck(this, BufferToNormalBmp);
 
-        this.rgbaBuffer = rgbaBuffer;
+        var inputPixelBit = Number.parseInt(rgbaBuffer.length / width / height * 8);
+        this.rgbaBuffer = RgabBufferBitTransform['from' + inputPixelBit + 'To32'] && RgabBufferBitTransform['from' + inputPixelBit + 'To32'](rgbaBuffer) || Buffer.from(rgbaBuffer);
         this.width = width;
         this.height = height;
     }
@@ -242,8 +241,12 @@ var BufferToNormalBmp = function () {
             };
 
             var bmpHeaderBuffer = this._setBmpHeader(bmpHeaderParams);
+            var rgbaBuffer24 = RgabBufferBitTransform.from32To24(rgbaBuffer);
+            var bmpPixelBuffer = this._reverseBufferLine(rgbaBuffer24, width, height);
+            console.log(bmpPixelBuffer.length);
+            var bmpBuffer = Buffer.concat([bmpHeaderBuffer, bmpPixelBuffer]);
 
-            return bmpHeaderBuffer;
+            return bmpBuffer;
         }
     }, {
         key: 'to16bitBmpBuffer',
@@ -298,8 +301,11 @@ var BufferToNormalBmp = function () {
             };
 
             var bmpHeaderBuffer = this._setBmpHeader(bmpHeaderParams);
+            var rgbaBuffer16 = RgabBufferBitTransform.from32To16(rgbaBuffer);
+            var bmpPixelBuffer = this._reverseBufferLine(rgbaBuffer16, width, height);
+            var bmpBuffer = Buffer.concat([bmpHeaderBuffer, bmpPixelBuffer]);
 
-            return bmpHeaderBuffer;
+            return bmpBuffer;
         }
     }]);
 

@@ -58,4 +58,7 @@ babel src/idnex.js -o dist/index.js
 ## 参考资料
 >https://github.com/shaozilee/bmp-js
 
+## TODO
+buffer.length % 4 == 0 
+
 ## END
