@@ -239,13 +239,14 @@ function from32To16(bgraBuffer) {
     var bufferArr = [];
     for (var _i2 = 0; _i2 < pixelWidth; _i2++) {
 
-        var numR = new StrBufInt(bs[_i2]).bufToInt().digit8To5().toInt().numberMod256().done();
+        var numB = new StrBufInt(bs[_i2]).bufToInt().digit8To5().toInt().numberMod256().done();
         var numG = new StrBufInt(gs[_i2]).bufToInt().digit8To6().toInt().numberMod256().done();
-        var numB = new StrBufInt(rs[_i2]).bufToInt().digit8To5().toInt().numberMod256().done();
+        var numR = new StrBufInt(rs[_i2]).bufToInt().digit8To5().toInt().numberMod256().done();
 
-        var firstBufer = new StrBufInt((numR << 3) + (numG >> 3)).numberMod256().intToBuf().done();
-        var secondBuffer = new StrBufInt((numG << 5) + numB).numberMod256().intToBuf().done();
+        var firstBufer = new StrBufInt(new StrBufInt(numG << 5).numberMod256().done() + numB).numberMod256().intToBuf().done();
+        var secondBuffer = new StrBufInt((numR << 3) + (numG >> 3)).numberMod256().intToBuf().done();
 
+        // !!!!! LE
         bufferArr.push(firstBufer);
         bufferArr.push(secondBuffer);
     }

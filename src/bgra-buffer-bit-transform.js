@@ -1,7 +1,7 @@
 /**
  * @author   CntChen
  * @date     2016-08-25
- * @desc     32bit 24bit 16bit rgbaBuffer transform
+ * @desc     32bit 24bit 16bit bgraBuffer transform
  */
 
 ///////////////////////
@@ -146,62 +146,63 @@ class StrBufInt {
 ///////////////////////
 
 
-function from32To24(rgbaBuffer) {
-    rgbaBuffer = Buffer.from(rgbaBuffer);
+function from32To24(bgraBuffer) {
+    bgraBuffer = Buffer.from(bgraBuffer);
     const fromColorBitUnit = 8;
     const toColorBitUnit = 8;
     const pixelByteUnit = 4;
-    const pixelWidth = Number.parseInt(rgbaBuffer.length / pixelByteUnit);
+    const pixelWidth = Number.parseInt(bgraBuffer.length / pixelByteUnit);
 
-    let rs = [];
-    let gs = [];
     let bs = [];
+    let gs = [];
+    let rs = [];
     let as = [];
     for (let i = 0; i < pixelWidth; i++) {
-        rs.push(rgbaBuffer.slice(pixelByteUnit * i + 0, pixelByteUnit * i + 1));
-        gs.push(rgbaBuffer.slice(pixelByteUnit * i + 1, pixelByteUnit * i + 2));
-        bs.push(rgbaBuffer.slice(pixelByteUnit * i + 2, pixelByteUnit * i + 3));
-        as.push(rgbaBuffer.slice(pixelByteUnit * i + 3, pixelByteUnit * i + 4));
+        bs.push(bgraBuffer.slice(pixelByteUnit * i + 0, pixelByteUnit * i + 1));
+        gs.push(bgraBuffer.slice(pixelByteUnit * i + 1, pixelByteUnit * i + 2));
+        rs.push(bgraBuffer.slice(pixelByteUnit * i + 2, pixelByteUnit * i + 3));
+        as.push(bgraBuffer.slice(pixelByteUnit * i + 3, pixelByteUnit * i + 4));
     }
 
     let bufferArr = [];
     for (let i = 0; i < pixelWidth; i++) {
-        bufferArr.push(rs[i]);
-        bufferArr.push(gs[i]);
         bufferArr.push(bs[i]);
+        bufferArr.push(gs[i]);
+        bufferArr.push(rs[i]);
     }
 
     return Buffer.concat(bufferArr);
 }
 
-function from32To16(rgbaBuffer) {
-    rgbaBuffer = Buffer.from(rgbaBuffer);
+function from32To16(bgraBuffer) {
+    bgraBuffer = Buffer.from(bgraBuffer);
     const fromColorBitUnit = 8;
-    const toColorBitUnit = 6;
+    const toColorBitUnit = 6; // BGR565
     const pixelByteUnit = 4;
-    const pixelWidth = Number.parseInt(rgbaBuffer.length / pixelByteUnit);
+    const pixelWidth = Number.parseInt(bgraBuffer.length / pixelByteUnit);
 
-    let rs = [];
-    let gs = [];
     let bs = [];
+    let gs = [];
+    let rs = [];
     let as = [];
     for (let i = 0; i < pixelWidth; i++) {
-        rs.push(rgbaBuffer.slice(pixelByteUnit * i + 0, pixelByteUnit * i + 1));
-        gs.push(rgbaBuffer.slice(pixelByteUnit * i + 1, pixelByteUnit * i + 2));
-        bs.push(rgbaBuffer.slice(pixelByteUnit * i + 2, pixelByteUnit * i + 3));
-        as.push(rgbaBuffer.slice(pixelByteUnit * i + 3, pixelByteUnit * i + 4));
+        bs.push(bgraBuffer.slice(pixelByteUnit * i + 0, pixelByteUnit * i + 1));
+        gs.push(bgraBuffer.slice(pixelByteUnit * i + 1, pixelByteUnit * i + 2));
+        rs.push(bgraBuffer.slice(pixelByteUnit * i + 2, pixelByteUnit * i + 3));
+        as.push(bgraBuffer.slice(pixelByteUnit * i + 3, pixelByteUnit * i + 4));
     }
 
     let bufferArr = [];
     for (let i = 0; i < pixelWidth; i++) {
 
-        let numR = new StrBufInt(rs[i]).bufToInt().digit8To5().toInt().numberMod256().done();
-        let numG = new StrBufInt(gs[i]).bufToInt().digit8To6().toInt().numberMod256().done();
         let numB = new StrBufInt(bs[i]).bufToInt().digit8To5().toInt().numberMod256().done();
+        let numG = new StrBufInt(gs[i]).bufToInt().digit8To6().toInt().numberMod256().done();
+        let numR = new StrBufInt(rs[i]).bufToInt().digit8To5().toInt().numberMod256().done();
 
-        let firstBufer = new StrBufInt((numR << 3) + (numG >> 3)).numberMod256().intToBuf().done();
-        let secondBuffer = new StrBufInt((numG << 5) + numB).numberMod256().intToBuf().done();
+        let firstBufer = new StrBufInt(new StrBufInt(numG << 5).numberMod256().done() + numB).numberMod256().intToBuf().done();
+        let secondBuffer = new StrBufInt((numR << 3) + (numG >> 3)).numberMod256().intToBuf().done();
 
+        // !!!!! LE
         bufferArr.push(firstBufer);
         bufferArr.push(secondBuffer);
     }
@@ -209,49 +210,49 @@ function from32To16(rgbaBuffer) {
     return Buffer.concat(bufferArr);
 }
 
-function from24To32(rgbaBuffer) {
-    rgbaBuffer = Buffer.from(rgbaBuffer);
+function from24To32(bgraBuffer) {
+    bgraBuffer = Buffer.from(bgraBuffer);
     const fromColorBitUnit = 8;
     const toColorBitUnit = 8;
     const pixelByteUnit = 3;
-    const pixelWidth = Number.parseInt(rgbaBuffer.length / pixelByteUnit);
+    const pixelWidth = Number.parseInt(bgraBuffer.length / pixelByteUnit);
 
-    let rs = [];
-    let gs = [];
     let bs = [];
+    let gs = [];
+    let rs = [];
     let as = [];
     for (let i = 0; i < pixelWidth; i++) {
-        rs.push(rgbaBuffer.slice(pixelByteUnit * i + 0, pixelByteUnit * i + 1));
-        gs.push(rgbaBuffer.slice(pixelByteUnit * i + 1, pixelByteUnit * i + 2));
-        bs.push(rgbaBuffer.slice(pixelByteUnit * i + 2, pixelByteUnit * i + 3));
-        as.push(Buffer.from('00', 'hex'));
+        bs.push(bgraBuffer.slice(pixelByteUnit * i + 0, pixelByteUnit * i + 1));
+        gs.push(bgraBuffer.slice(pixelByteUnit * i + 1, pixelByteUnit * i + 2));
+        rs.push(bgraBuffer.slice(pixelByteUnit * i + 2, pixelByteUnit * i + 3));
+        as.push(Buffer.from('FF', 'hex'));
     }
 
     let bufferArr = [];
     for (let i = 0; i < pixelWidth; i++) {
-        bufferArr.push(rs[i]);
-        bufferArr.push(gs[i]);
         bufferArr.push(bs[i]);
+        bufferArr.push(gs[i]);
+        bufferArr.push(rs[i]);
         bufferArr.push(as[i]);
     }
 
     return Buffer.concat(bufferArr);
 }
 
-function from16To32(rgbaBuffer) {
-    rgbaBuffer = Buffer.from(rgbaBuffer);
+function from16To32(bgraBuffer) {
+    bgraBuffer = Buffer.from(bgraBuffer);
     const fromColorBitUnit = 6;
     const toColorBitUnit = 8;
     const pixelByteUnit = 2;
-    const pixelWidth = Number.parseInt(rgbaBuffer.length / pixelByteUnit);
+    const pixelWidth = Number.parseInt(bgraBuffer.length / pixelByteUnit);
 
-    let rs = [];
-    let gs = [];
     let bs = [];
+    let gs = [];
+    let rs = [];
     let as = [];
     for (let i = 0; i < pixelWidth; i++) {
-        let firstBufer = rgbaBuffer.slice(pixelByteUnit * i + 0, pixelByteUnit * i + 1);
-        let secondBuffer = rgbaBuffer.slice(pixelByteUnit * i + 1, pixelByteUnit * i + 2);
+        let firstBufer = bgraBuffer.slice(pixelByteUnit * i + 0, pixelByteUnit * i + 1);
+        let secondBuffer = bgraBuffer.slice(pixelByteUnit * i + 1, pixelByteUnit * i + 2);
 
         let numR = new StrBufInt(firstBufer).bufToInt().bitShiftRight(3).digit5To8().numberMod256().done();
         let numG = new StrBufInt(
@@ -261,17 +262,17 @@ function from16To32(rgbaBuffer) {
             .digit6To8().numberMod256().done();
         let numB = new StrBufInt(secondBuffer).bufToInt().bitShiftleft(3).numberMod256().digit5To8().numberMod256().done();
 
-        rs.push(new StrBufInt(numR).intToBuf().done());
+        bs.push(new StrBufInt(numR).intToBuf().done());
         gs.push(new StrBufInt(numG).intToBuf().done());
-        bs.push(new StrBufInt(numB).intToBuf().done());
-        as.push(new StrBufInt('00').hexStrToBuf().done());
+        rs.push(new StrBufInt(numB).intToBuf().done());
+        as.push(new StrBufInt('FF').hexStrToBuf().done());
     }
 
     let bufferArr = [];
     for (let i = 0; i < pixelWidth; i++) {
-        bufferArr.push(rs[i]);
-        bufferArr.push(gs[i]);
         bufferArr.push(bs[i]);
+        bufferArr.push(gs[i]);
+        bufferArr.push(rs[i]);
         bufferArr.push(as[i]);
     }
 
@@ -282,24 +283,24 @@ function from16To32(rgbaBuffer) {
  * easy to understand and write
  * no high efficiency
  */
-function from24To16(rgbaBuffer) {
-    rgbaBuffer = Buffer.from(rgbaBuffer);
-    rgbaBuffer = from24To32(rgbaBuffer);
-    rgbaBuffer = from32To16(rgbaBuffer);
+function from24To16(bgraBuffer) {
+    bgraBuffer = Buffer.from(bgraBuffer);
+    bgraBuffer = from24To32(bgraBuffer);
+    bgraBuffer = from32To16(bgraBuffer);
 
-    return rgbaBuffer;
+    return bgraBuffer;
 }
 
 /**
  * easy to understand and write
  * no high efficiency
  */
-function from16To24(rgbaBuffer) {
-    rgbaBuffer = Buffer.from(rgbaBuffer);
-    rgbaBuffer = from16To32(rgbaBuffer);
-    rgbaBuffer = from16To24(rgbaBuffer);
+function from16To24(bgraBuffer) {
+    bgraBuffer = Buffer.from(bgraBuffer);
+    bgraBuffer = from16To32(bgraBuffer);
+    bgraBuffer = from16To24(bgraBuffer);
 
-    return rgbaBuffer;
+    return bgraBuffer;
 }
 
 

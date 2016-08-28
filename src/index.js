@@ -4,13 +4,13 @@
  */
 
 
-import * as RgabBufferBitTransform from './rgba-buffer-bit-transform.js';
+import * as BgraBufferBitTransform from './bgra-buffer-bit-transform.js';
 
 class BufferToNormalBmp {
-    constructor(rgbaBuffer, width, height) {
-        const inputPixelBit = Number.parseInt(rgbaBuffer.length / width / height * 8);
-        this.rgbaBuffer = (RgabBufferBitTransform['from'+inputPixelBit+'To32'] && RgabBufferBitTransform['from'+inputPixelBit+'To32'](rgbaBuffer))
-        || Buffer.from(rgbaBuffer);
+    constructor(bgraBuffer, width, height) {
+        const inputPixelBit = Number.parseInt(bgraBuffer.length / width / height * 8);
+        this.bgraBuffer = (BgraBufferBitTransform['from'+inputPixelBit+'To32'] && BgraBufferBitTransform['from'+inputPixelBit+'To32'](bgraBuffer))
+        || Buffer.from(bgraBuffer);
         this.width = width;
         this.height = height;
     }
@@ -75,12 +75,16 @@ class BufferToNormalBmp {
     /**
      * 协定传入的行数据是从上到下的，而BMP存储是从下到上的，所以需要转换一下
      */
-    _reverseBufferLine(rgbaBuffer, width, height) {
-        rgbaBuffer = Buffer.from(rgbaBuffer);
+    _reverseBufferLine(bgraBuffer, width, height) {
+        return bgraBuffer;
+        bgraBuffer = Buffer.from(bgraBuffer);
+
+        const inputPixelByte = Number.parseInt(bgraBuffer.length / width / height);
+        console.log(inputPixelByte);
 
         let bufferArr = [];
         for (let i = 0; i < height; i++) {
-            let oneLineBuffer = rgbaBuffer.slice(4 * width * i, 4 * width * (i + 1));
+            let oneLineBuffer = bgraBuffer.slice(inputPixelByte * width * i, inputPixelByte * width * (i + 1));
             bufferArr.push(oneLineBuffer);
         }
         bufferArr = bufferArr.reverse();
@@ -88,41 +92,41 @@ class BufferToNormalBmp {
         return Buffer.concat(bufferArr);
     }
 
-    _getRgbaArr(pixelBuffer, pixelWidth, colorBitUnit) {
+    _getBgraArr(pixelBuffer, pixelWidth, colorBitUnit) {
         pixelBuffer = Buffer.from(pixelBuffer);
 
-        let rs = [];
-        let gs = [];
         let bs = [];
+        let gs = [];
+        let rs = [];
         let as = [];
         for (let i = 0; i < width; i++) {
-            rs.push(rgbaBuffer.slice(4 * i + 0, 4 * i + 1));
-            gs.push(rgbaBuffer.slice(4 * i + 1, 4 * i + 2));
-            bs.push(rgbaBuffer.slice(4 * i + 2, 4 * i + 3));
-            as.push(rgbaBuffer.slice(4 * i + 3, 4 * i + 4));
+            bs.push(bgraBuffer.slice(4 * i + 0, 4 * i + 1));
+            gs.push(bgraBuffer.slice(4 * i + 1, 4 * i + 2));
+            rs.push(bgraBuffer.slice(4 * i + 2, 4 * i + 3));
+            as.push(bgraBuffer.slice(4 * i + 3, 4 * i + 4));
         }
 
         let bufferArr = [];
         for (let i = 0; i < width; i++) {
-            bufferArr.push(rs[i]);
-            bufferArr.push(gs[i]);
             bufferArr.push(bs[i]);
+            bufferArr.push(gs[i]);
+            bufferArr.push(rs[i]);
             bufferArr.push(as[i]);            
         }
 
         return Buffer.concat(bufferArr);
     }
 
-    to32bitBmpBuffer(rgbaBuffer, pixelWidth, pixelHeight) {
-        rgbaBuffer = rgbaBuffer || this.rgbaBuffer;
+    to32bitBmpBuffer(bgraBuffer, pixelWidth, pixelHeight) {
+        bgraBuffer = bgraBuffer || this.bgraBuffer;
         pixelWidth = pixelWidth || this.width;
         pixelHeight =  pixelHeight || this.height;
 
-        if(rgbaBuffer.length != 4 * pixelWidth * pixelHeight){
+        if(bgraBuffer.length != 4 * pixelWidth * pixelHeight){
             throw new Error('Not correct bmp params');
         }
 
-        rgbaBuffer = Buffer.from(rgbaBuffer);
+        bgraBuffer = Buffer.from(bgraBuffer);
 
         const bmpHeaderSize = 54;
         const bmpPixelSize = 4 * this.width * this.height;
@@ -165,22 +169,22 @@ class BufferToNormalBmp {
         };
 
         const bmpHeaderBuffer = this._setBmpHeader(bmpHeaderParams);
-        const bmpPixelBuffer = this._reverseBufferLine(rgbaBuffer, width, height);
+        const bmpPixelBuffer = this._reverseBufferLine(bgraBuffer, width, height);
         const bmpBuffer = Buffer.concat([bmpHeaderBuffer, bmpPixelBuffer]);
 
         return bmpBuffer;
     };
 
-    to24bitBmpBuffer(rgbaBuffer, pixelWidth, pixelHeight) {
-        rgbaBuffer = rgbaBuffer || this.rgbaBuffer;
+    to24bitBmpBuffer(bgraBuffer, pixelWidth, pixelHeight) {
+        bgraBuffer = bgraBuffer || this.bgraBuffer;
         pixelWidth = pixelWidth || this.width;
         pixelHeight =  pixelHeight || this.height;
 
-        if(rgbaBuffer.length != 4 * pixelWidth * pixelHeight){
+        if(bgraBuffer.length != 4 * pixelWidth * pixelHeight){
             throw new Error('Not correct bmp params');
         }
 
-        rgbaBuffer = Buffer.from(rgbaBuffer);
+        bgraBuffer = Buffer.from(bgraBuffer);
 
         const bmpHeaderSize = 54;
         const bmpPixelSize = 3 * this.width * this.height;
@@ -196,7 +200,7 @@ class BufferToNormalBmp {
         const height = this.height;
         const planes = 1;
         const bitPP = 24;
-        const compress = 3;
+        const compress = 0;
         const rawSize = bmpPixelSize;
         // http://www.bing.com/search?q=bmp++3780
         const hr = 3780;
@@ -223,24 +227,23 @@ class BufferToNormalBmp {
         };
 
         const bmpHeaderBuffer = this._setBmpHeader(bmpHeaderParams);
-        const rgbaBuffer24 = RgabBufferBitTransform.from32To24(rgbaBuffer);
-        const bmpPixelBuffer = this._reverseBufferLine(rgbaBuffer24, width, height);
-        console.log(bmpPixelBuffer.length);
+        const bgraBuffer24 = BgraBufferBitTransform.from32To24(bgraBuffer);
+        const bmpPixelBuffer = this._reverseBufferLine(bgraBuffer24, width, height);
         const bmpBuffer = Buffer.concat([bmpHeaderBuffer, bmpPixelBuffer]);
 
         return bmpBuffer;
     };
 
-    to16bitBmpBuffer(rgbaBuffer, pixelWidth, pixelHeight) {
-        rgbaBuffer = rgbaBuffer || this.rgbaBuffer;
+    to16bitBmpBuffer(bgraBuffer, pixelWidth, pixelHeight) {
+        bgraBuffer = bgraBuffer || this.bgraBuffer;
         pixelWidth = pixelWidth || this.width;
         pixelHeight =  pixelHeight || this.height;
 
-        if(rgbaBuffer.length != 4 * pixelWidth * pixelHeight){
+        if(bgraBuffer.length != 4 * pixelWidth * pixelHeight){
             throw new Error('Not correct bmp params');
         }
 
-        rgbaBuffer = Buffer.from(rgbaBuffer);
+        bgraBuffer = Buffer.from(bgraBuffer);
         const bmpHeaderSize = 54;
         const bmpPixelSize = 2 * this.width * this.height;
         const bmpBufferSize = bmpHeaderSize + bmpPixelSize;
@@ -282,12 +285,34 @@ class BufferToNormalBmp {
         };
 
         const bmpHeaderBuffer = this._setBmpHeader(bmpHeaderParams);
-        const rgbaBuffer16 = RgabBufferBitTransform.from32To16(rgbaBuffer);
-        const bmpPixelBuffer = this._reverseBufferLine(rgbaBuffer16, width, height);
+        const bgraBuffer16 = BgraBufferBitTransform.from32To16(bgraBuffer);
+
+        console.log(this._reverseBufferLine(bgraBuffer, width, height));
+        console.log(this._reverseBufferLine(bgraBuffer16, width, height));
+        
+        const bmpPixelBuffer = this._reverseBufferLine(bgraBuffer16, width, height);
         const bmpBuffer = Buffer.concat([bmpHeaderBuffer, bmpPixelBuffer]);
 
         return bmpBuffer;
     };
+
+    clipping(startX, startY, endX, endY) {
+        const bgraBuffer = Buffer.from(this.bgraBuffer);
+        const pixelByteUnit = 4;
+
+        let bufferArr = [];
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                if (x >= startX && x < endX && y >= startY && y < endY) {
+                    bufferArr.push(bgraBuffer.slice((y * this.width + x) * pixelByteUnit, (y * this.width + x + 1) * pixelByteUnit));
+                }
+            }
+        }
+
+        console.log(bufferArr.length);
+        console.log(Buffer.concat(bufferArr).length);
+        return Buffer.concat(bufferArr);
+    }
 };
 
 
