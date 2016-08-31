@@ -1,11 +1,11 @@
 /**
  * TDD
- * Wirte by ES5 
+ * Wirte by ES5
  * @data 2016-08-24
  */
 
 var fs = require('fs');
-// var bmp = require("bmp-js");
+var bmp = require("bmp-js");
 
 var BufferToNormalBmp = require('../dist/index.js').default;
 
@@ -13,9 +13,12 @@ var BufferToNormalBmp = require('../dist/index.js').default;
 console.log('test', 'BufferToNormalBmp');
 ////
 var bmpBuffer = fs.readFileSync(__dirname + '/test_32.bmp');
-// var bmpData = bmp.decode(bmpBuffer);
+var bmpData = bmp.decode(bmpBuffer);
+var bmpWidth = bmpData.width;
+var bmpHeight = bmpData.height;
 // var bmpPixelBuffer = bmpData.data;
 var bmpPixelBuffer = bmpBuffer.slice(54);
+bmpPixelBuffer = BufferToNormalBmp.reverseBufferLine(bmpPixelBuffer, bmpWidth, bmpHeight);
 
 var myBufferToNormalBmp = new BufferToNormalBmp(bmpPixelBuffer, 60, 20);
 // 32
@@ -37,5 +40,5 @@ fs.writeFileSync(__dirname + '/bmp32_clip.bmp', bmp32Buffer_clip);
 
 ////
 // RgbaBufferBitTransform
-require('./rgba-buffer-bit-transform-test.js');
+require('./bgra-buffer-bit-transform-test.js');
 ////
