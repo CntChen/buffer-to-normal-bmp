@@ -7,7 +7,7 @@
 var fs = require('fs');
 var bmp = require("bmp-js");
 
-var BufferToNormalBmp = require('../dist/index.js').default;
+var BufferToNormalBmp = require('../dist/index.js').BufferToNormalBmp;
 
 ////
 console.log('test', 'BufferToNormalBmp');

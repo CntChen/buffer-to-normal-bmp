@@ -310,4 +310,7 @@ class BufferToNormalBmp {
 };
 
 
+export {
+  BufferToNormalBmp
+};
 export default BufferToNormalBmp;
